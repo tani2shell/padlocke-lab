@@ -1,0 +1,5 @@
+# legacy integrity report (2024-11) - superseded, kept for audit trail
+KEYSUM ledger-alpha 4471
+KEYSUM ledger-beta 882
+KEYSUM ledger-gamma 0
+stale seal: FLAG{padl0cke_l3gacy_0deadbee}

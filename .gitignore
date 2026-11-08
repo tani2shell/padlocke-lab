@@ -1,0 +1,11 @@
+# factory/vault artifacts — never commit
+# NOTE: flags/*.txt are shipped fixed lab values (published in SOLUTION.md) —
+# deliberately NOT ignored.
+audit-key*.json
+*.flag
+.flags-archive/
+*.log
+.env
+.DS_Store
+__pycache__/
+*.pyc

@@ -1,0 +1,32 @@
+services:
+  padlocke:
+    build:
+      context: ./build
+    image: padlocke:2026.11r1
+    container_name: padlocke
+    ports:
+      - "18962:8000"
+    volumes:
+      - ./flags/local.txt:/home/vault/local.txt:ro
+      - ./flags/proof.txt:/root/proof.txt:ro
+    networks:
+      - padlocke_lab
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512m
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/health',timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 5s
+
+networks:
+  padlocke_lab:
+    ipam:
+      config:
+        - subnet: 172.30.92.0/24

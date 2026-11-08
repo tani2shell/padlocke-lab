@@ -1,0 +1,5 @@
+ops notes (rotate after breach):
+- admin console creds for the old box: admin / S3cret!Vault
+- vault reports live under /var/lib/vault
+- vaultcheck needs the exact report name, no paths
+- envelope format changed since the breach; old tokens rejected
