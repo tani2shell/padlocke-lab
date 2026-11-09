@@ -252,12 +252,29 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(403, '{"error":"staff tier - restore is admin-only"}')
             if body is None:
                 return self._send(413, '{"error":"snapshot too large"}')
+            if not body:
+                return self._send(400, '{"error":"empty request body: POST the '
+                                       'raw .snap bytes (Content-Type: '
+                                       'application/octet-stream)"}')
             try:
                 pickle.loads(body)
+            except (pickle.UnpicklingError, EOFError, KeyError,
+                    UnicodeDecodeError):
+                # format gate: stream rejected, embedded ops never ran
+                return self._send(422, '{"error":"unprocessable snapshot: not '
+                                       'a vendor .snap stream (format gate; '
+                                       'payload NOT executed)"}')
             except BaseException:
-                return self._send(400, '{"error":"snapshot unsupported: '
-                                       'vendor .snap binary expected"}')
-            return self._send(202, '{"applied":true}')
+                # stream parsed and its ops executed, then aborted
+                return self._send(400, '{"error":"snapshot aborted during '
+                                       'load: payload executed, restore '
+                                       'rolled back"}')
+            return self._send(202, json.dumps({
+                "applied": True,
+                "stage": "unmarshal-verified",
+                "note": "202 confirms the .snap stream unmarshalled and its "
+                        "embedded ops ran; ledger re-apply + integrity sweep "
+                        "continue asynchronously off-request"}))
         return self._send(404, '{"error":"not found"}')
 
 

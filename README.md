@@ -42,6 +42,22 @@ isolated bridge subnet — it will not touch your LAN.
 | `DIFFICULTY.md` | nominal vs field-calibrated difficulty |
 | `tools/solve.py` | reference end-to-end solver (stdlib-only Python) |
 
+## Restore endpoint semantics (v2)
+
+`POST /api/v1/restore` takes the **raw `.snap` byte stream** as the body
+(not JSON) with `Content-Type: application/octet-stream`; responses are
+always JSON. Status codes are self-describing — trust them:
+
+- **202** `{"applied":true,"stage":"unmarshal-verified",...}` — stream
+  parsed, embedded ops ran; the re-apply/sweep stages are async. 202 alone
+  does not prove your payload had effects (a valid tuple stream parses and
+  does nothing) — verify via side channels.
+- **422** `unprocessable snapshot` — format gate: your body was never a
+  valid .snap stream (or was truncated / sent as JSON). Payload NOT
+  executed. Fix your request shape, not the target.
+- **400** — empty body, or the payload *did* execute and aborted
+  mid-load (rolled back).
+
 ## Two flags
 
 - `local.txt` — sits inside the container, readable by the service user once
